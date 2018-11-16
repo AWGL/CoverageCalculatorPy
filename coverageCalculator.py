@@ -191,9 +191,6 @@ def main(args):
     )
     
     covfile.close()
-    mrgfile.close()
-    missingfile.close()
-    gapsfile.close()
     
 
     

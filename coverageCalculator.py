@@ -18,8 +18,11 @@ def get_args():
     """
     uses argparse package to extract command line arguments
     """
+
+    # argparse object
     parser = argparse.ArgumentParser(
         description='accepts a bedfile and GATK depthOfCoverage file and generates coverage metrics')
+
     parser.add_argument('-B', '--bedfile', help='path to bedfile', required=True)
     parser.add_argument('-D', '--depthfile', help='path to depth file', required=True)
     parser.add_argument('-p', '--padding', help='basepair padding', required=False, default=0)
@@ -41,7 +44,7 @@ def main(args):
     if not os.path.exists(args.outdir):
         os.makedirs(args.outdir)
 
-    # file handel
+    # file handel for coverage output file
     covr_outfile = args.outdir + args.outname + ".coverage"
 
     # remove file if exists
@@ -65,42 +68,47 @@ def main(args):
         "PERC_COVERAGE@" + str(args.depth) + "\n"
     )
 
+    # variables to store running totals of depth / coverage
+    # over all intervals in file 
     mem_depth = 0
     mem_meets_depth = 0
     mem_length = 0
-    feature_length = 0
-    feature_depth = 0
-    feature_meets_depth = 0
 
-    # if a groups file has been included, check that the bed file and groups file
-    # contain the same number of rows
+
+    # setup groups / features variables if this file has been included --groupsfile
+    
     if os.path.exists(args.groupfile):
+        # initialise variables
         feature = []
+	feature_length = 0
+    	feature_depth = 0
+    	feature_meets_depth = 0
+ 	
+	# check bedfile and groups are same length - throw error if different
         for line in open(args.groupfile):
             feature.append(line.rstrip())
         num_ln_grp = len(feature) - 1  # minus one because grp file has a header
         num_ln_bed = sum(1 for line in open(args.bedfile))
-
         if num_ln_bed != num_ln_grp:
             raise ValueError('bedfile and groupfile do not have the same number of entries')
 
-        # prepare output file
-        grp_outfile = args.outdir + args.outname + "_" + str(feature[0])
+    # prepare output file for merged data
+    mrg_outfile = args.outdir + args.outname + ".totalCoverge"
 
-        # remove file if exists
-        if os.path.exists(grp_outfile):
-            os.remove(grp_outfile)
+    # remove file if exists
+    if os.path.exists(mrg_outfile):
+        os.remove(mrg_outfile)
 
-        # open coverage output file & write header
-        grpfile = open(grp_outfile, 'a+')
+    # open coverage output file & write header
+    mrgfile = open(mrg_outfile, 'a+')
 
-        grpfile.write(
-            "FEATURE" +
-            "\t" +
-            "AVG_DEPTH" +
-            "\t" +
-            "PERC_COVERAGE@" + str(args.depth) + "\n"
-        )
+    mrgfile.write(
+        "FEATURE" +
+        "\t" +
+        "AVG_DEPTH" +
+        "\t" +
+        "PERC_COVERAGE@" + str(args.depth) + "\n"
+    )
 
     with open(args.bedfile) as bed:
 
@@ -130,12 +138,12 @@ def main(args):
                     last_feature = current_feature
 
                 if current_feature != last_feature:
-                    grpfile.write(
+                    mrgfile.write(
                         str(feature[cnt_bed_ln - 1]) +
                         "\t" +
                         str(round(feature_depth / feature_length, 0)) +
                         "\t" +
-                        str(round(feature_meets_depth / feature_length, 1)) + "\n")
+                        str(round((feature_meets_depth / feature_length)*100, 1)) + "\n")
 
                     feature_depth = 0
                     feature_meets_depth = 0
@@ -152,21 +160,15 @@ def main(args):
             cnt_bed_ln = cnt_bed_ln + 1
 
     if feature:
-        grpfile.write(
+        mrgfile.write(
             str(feature[cnt_bed_ln - 1]) +
             "\t" +
             str(round(feature_depth / feature_length, 0)) +
             "\t" +
-            str(round(feature_meets_depth / feature_length, 1)) + "\n")
+            str(round((feature_meets_depth / feature_length)*100, 1)) + "\n")
 
-    covfile.write(
+    mrgfile.write(
         args.outname +
-        "\t" +
-        "-" +
-        "\t" +
-        "-" +
-        "\t" +
-        "-" +
         "\t" +
         str(round(mem_depth / mem_length, 0)) +
         "\t" +

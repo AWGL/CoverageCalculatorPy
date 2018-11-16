@@ -74,19 +74,20 @@ def main(args):
     mem_meets_depth = 0
     mem_length = 0
 
-
     # setup groups / features variables if this file has been included --groupsfile
     
     if os.path.exists(args.groupfile):
         # initialise variables
         feature = []
-	feature_length = 0
-    	feature_depth = 0
-    	feature_meets_depth = 0
+        feature_length = 0
+        feature_depth = 0
+        feature_meets_depth = 0
+        last_feature = 0
  	
-	# check bedfile and groups are same length - throw error if different
+        # check bedfile and groups are same length - throw error if different
         for line in open(args.groupfile):
             feature.append(line.rstrip())
+
         num_ln_grp = len(feature) - 1  # minus one because grp file has a header
         num_ln_bed = sum(1 for line in open(args.bedfile))
         if num_ln_bed != num_ln_grp:

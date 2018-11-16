@@ -76,7 +76,7 @@ def main(args):
 
     # setup groups / features variables if this file has been included --groupsfile
     
-    if os.path.exists(args.groupfile):
+    if args.groupfile != None:
         # initialise variables
         feature = []
         feature_length = 0
@@ -132,7 +132,7 @@ def main(args):
             mem_meets_depth = mem_meets_depth + meets_depth
             mem_length = mem_length + length
 
-            if feature:
+            if args.groupfile != None:
                 current_feature = feature[cnt_bed_ln]
 
                 if cnt_bed_ln == 1:
@@ -160,7 +160,7 @@ def main(args):
 
             cnt_bed_ln = cnt_bed_ln + 1
 
-    if feature:
+    if args.groupfile != None:
         mrgfile.write(
             str(feature[cnt_bed_ln - 1]) +
             "\t" +

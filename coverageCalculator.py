@@ -116,7 +116,9 @@ def main(args):
     # iterate over each line of the bed file 
     with open(args.bedfile) as bed:
 
-        cnt_bed_ln = 1  # start on element 1 because 0 contains header
+        # counter used to access element of the features list that correpondes
+        # to a bedfile entry. Start on element 1 because 0 contains features header
+        cnt_bed_ln = 1
 
         for line in bed:
             bedlist = line.split()
@@ -147,7 +149,7 @@ def main(args):
 
                 if current_feature != last_feature:
                     mrgfile.write(
-                        str(feature[cnt_bed_ln - 1]) +
+                        str(feature[cnt_bed_ln - 1] + '_' + feature[0]) +
                         "\t" +
                         str(round(feature_depth / feature_length, 0)) +
                         "\t" +
@@ -173,7 +175,7 @@ def main(args):
     # if --groups has been used, last interval in bed will always be the end of a feature - so print
     if args.groupfile != None:
         mrgfile.write(
-            str(feature[cnt_bed_ln - 1]) +
+            str(feature[cnt_bed_ln - 1] + '_' + feature[0]) +
             "\t" +
             str(round(feature_depth / feature_length, 0)) +
             "\t" +

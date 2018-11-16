@@ -53,7 +53,6 @@ def main(args):
 
     # open coverage output file & write header
     covfile = open(covr_outfile, 'a+')
-
     covfile.write(
         "CHR" +
         "\t" +
@@ -75,28 +74,30 @@ def main(args):
     mem_length = 0
 
     # setup groups / features variables if this file has been included --groupsfile
-    
     if args.groupfile != None:
-        # initialise variables
+        # initialise variables to store depth / coverage over feature
         feature = []
         feature_length = 0
         feature_depth = 0
         feature_meets_depth = 0
         last_feature = 0
  	
-        # check bedfile and groups are same length - throw error if different
+        # features made into list
         for line in open(args.groupfile):
             feature.append(line.rstrip())
-
+            
+        # check bedfile and groups are same length - throw error if different    
         num_ln_grp = len(feature) - 1  # minus one because grp file has a header
         num_ln_bed = sum(1 for line in open(args.bedfile))
         if num_ln_bed != num_ln_grp:
             raise ValueError('bedfile and groupfile do not have the same number of entries')
 
-    # prepare output file for merged data
+            
+    # prepare output file for merged data - this always includes a data for all intervals in .bed
+    # but can also include groups if the file is given as an argument
     mrg_outfile = args.outdir + args.outname + ".totalCoverge"
 
-    # remove file if exists
+    # remove merged file if exists
     if os.path.exists(mrg_outfile):
         os.remove(mrg_outfile)
 
@@ -111,6 +112,8 @@ def main(args):
         "PERC_COVERAGE@" + str(args.depth) + "\n"
     )
 
+    
+    # iterate over each line of the bed file 
     with open(args.bedfile) as bed:
 
         cnt_bed_ln = 1  # start on element 1 because 0 contains header
@@ -126,12 +129,16 @@ def main(args):
                 meta = str(bedlist[3])
             else:
                 meta = ""
-
+            
+            # function prints coverage for given interval, but also returns stats for aggregation across intervals 
             depth, meets_depth, length = get_avg_depth(covfile, chr, start, end, meta, args.depthfile, int(args.depth))
+            
+            # storing coverage info across all intervals in given bedfile
             mem_depth = mem_depth + depth
             mem_meets_depth = mem_meets_depth + meets_depth
             mem_length = mem_length + length
-
+            
+            # storing coverage info across features if --groupfile argument included 
             if args.groupfile != None:
                 current_feature = feature[cnt_bed_ln]
 
@@ -154,12 +161,16 @@ def main(args):
                 feature_meets_depth = feature_meets_depth + meets_depth
                 feature_length = feature_length + length
                 last_feature = current_feature
-
+            
+            # reports gaps for given feature and appends to gaps file
             get_gaps(chr, start, end, meta, args.depthfile, int(args.depth))
+            
+            # reports coordinates which are unavilable (i.e in bed but not in depthfile) and appends to file
             report_missing_regions(chr, start, end, meta, args.depthfile)
 
             cnt_bed_ln = cnt_bed_ln + 1
 
+    # if --groups has been used, last interval in bed will always be the end of a feature - so print
     if args.groupfile != None:
         mrgfile.write(
             str(feature[cnt_bed_ln - 1]) +
@@ -167,7 +178,8 @@ def main(args):
             str(round(feature_depth / feature_length, 0)) +
             "\t" +
             str(round((feature_meets_depth / feature_length)*100, 1)) + "\n")
-
+    
+    # print accumated depth / coverage across entire bedfile
     mrgfile.write(
         args.outname +
         "\t" +
@@ -175,8 +187,14 @@ def main(args):
         "\t" +
         str(round((mem_meets_depth / mem_length) * 100, 1)) + "\n"
     )
+    
     covfile.close()
+    mrgfile.close()
+    missingfile.close()
+    gapsfile.close()
+    
 
+    
 
 def get_bed_lines(depthfile, chr, start, end):
     """
@@ -211,13 +229,13 @@ def get_avg_depth(covfile, chr, start, end, meta, depthfile, depth_threshold):
     records = get_bed_lines(depthfile, chr, start, end)
 
     # intialise variables used in forloop
-    tot_depth = 0
+    tot_depth = 0 
     meets_depth = 0  # counts the number of bases meeting min depth requirement
     length = (end - start)
 
     for record in records:
         depth = int(record[2])
-        tot_depth = tot_depth + depth
+        tot_depth = tot_depth + depth # accumaulated depth
         if depth >= depth_threshold:
             meets_depth = int(meets_depth) + 1
     avg_depth = round(tot_depth / length, 0)
@@ -241,6 +259,10 @@ def get_avg_depth(covfile, chr, start, end, meta, depthfile, depth_threshold):
 
 
 def get_gaps(chr, start, end, meta, depthfile, depth_threshold):
+    """
+    identifies and prints coordinates, within the given bed interval, that fall below the given
+    depth threshold
+    """
     # get depthfile entry for interval
     records = get_bed_lines(depthfile, chr, start, end)
 
@@ -284,6 +306,10 @@ def get_gaps(chr, start, end, meta, depthfile, depth_threshold):
 
 
 def report_missing_regions(chr, start, end, meta, depthfile):
+    """
+    identifies and reports coordinates which are given in the bedfile, but are not included
+    in the depth of coverage file
+    """
     # get depthfile entry for interval
     records = get_bed_lines(depthfile, chr, start, end)
 

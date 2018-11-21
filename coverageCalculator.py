@@ -112,7 +112,31 @@ def main(args):
         "PERC_COVERAGE@" + str(args.depth) + "\n"
     )
 
-    
+   
+    # prepare output file for gaps
+    # file handel
+    gaps_outfile = args.outdir + args.outname + ".gaps"
+
+    # remove file if exists
+    if os.path.exists(gaps_outfile):
+        os.remove(gaps_outfile)
+
+    # open gaps output file & write header
+    gapsfile = open(gaps_outfile, 'a+')
+    gapsfile.write("##DEPTH_THRESHOLD=" + str(args.depth) + "\n")
+
+    #prepare missing file outfile
+    # file handel
+    missing_outfile = args.outdir + args.outname + ".missing"
+
+    # is exists, remove file
+    if os.path.exists(missing_outfile):
+        os.remove(missing_outfile)
+
+    # open gaps output file & write header
+    missingfile = open(missing_outfile, 'a+')
+
+
     # iterate over each line of the bed file 
     with open(args.bedfile) as bed:
 
@@ -165,10 +189,10 @@ def main(args):
                 last_feature = current_feature
             
             # reports gaps for given feature and appends to gaps file
-            get_gaps(chr, start, end, meta, args.depthfile, int(args.depth))
+            get_gaps(gapsfile, chr, start, end, meta, args.depthfile, int(args.depth))
             
             # reports coordinates which are unavilable (i.e in bed but not in depthfile) and appends to file
-            report_missing_regions(chr, start, end, meta, args.depthfile)
+            report_missing_regions(missingfile, chr, start, end, meta, args.depthfile)
 
             cnt_bed_ln = cnt_bed_ln + 1
 
@@ -257,24 +281,13 @@ def get_avg_depth(covfile, chr, start, end, meta, depthfile, depth_threshold):
     return tot_depth, meets_depth, length
 
 
-def get_gaps(chr, start, end, meta, depthfile, depth_threshold):
+def get_gaps(gapsfile, chr, start, end, meta, depthfile, depth_threshold):
     """
     identifies and prints coordinates, within the given bed interval, that fall below the given
     depth threshold
     """
     # get depthfile entry for interval
     records = get_bed_lines(depthfile, chr, start, end)
-
-    # file handel
-    gaps_outfile = args.outdir + args.outname + ".gaps"
-
-    # remove file if exists
-    if os.path.exists(gaps_outfile):
-        os.remove(gaps_outfile)
-
-    # open gaps output file & write header
-    gapsfile = open(gaps_outfile, 'a+')
-    gapsfile.write("##DEPTH_THRESHOLD=" + str(depth_threshold) + "\n")
 
     # initialise variables used in loop
     first_entry = 1
@@ -300,11 +313,13 @@ def get_gaps(chr, start, end, meta, depthfile, depth_threshold):
                 gap_start = gap_start + 1
 
     # if interval ends on a gap, print
+    print(str(coord) + "\t" + str(gap_start) + "\n")
+
     if coord != gap_start - 1:
         gapsfile.write(str(chr) + "\t" + str(gap_start - 1) + "\t" + str(coord) + "\n")
 
 
-def report_missing_regions(chr, start, end, meta, depthfile):
+def report_missing_regions(missingfile, chr, start, end, meta, depthfile):
     """
     identifies and reports coordinates which are given in the bedfile, but are not included
     in the depth of coverage file

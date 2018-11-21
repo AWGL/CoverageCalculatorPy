@@ -95,7 +95,7 @@ def main(args):
             
     # prepare output file for merged data - this always includes a data for all intervals in .bed
     # but can also include groups if the file is given as an argument
-    mrg_outfile = args.outdir + args.outname + ".totalCoverge"
+    mrg_outfile = args.outdir + args.outname + ".totalCoverage"
 
     # remove merged file if exists
     if os.path.exists(mrg_outfile):

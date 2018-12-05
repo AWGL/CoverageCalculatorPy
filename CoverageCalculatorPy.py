@@ -1,5 +1,5 @@
 """
-coverageCalculator2.py
+CoverageCalculatorPy.py
 
 Calculates coverage statistics from depth of coverage file
 

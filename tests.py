@@ -1,7 +1,7 @@
 """
 tests.py
 
-unit tests for coverageCalculator2.py
+unit tests for CoverageCalculatorPy.py
 
 Aurthor: Christopher Medway
 Created: 11th November 2018
@@ -11,7 +11,7 @@ Updated: 11th November 2018
 
 import unittest
 import os
-from coverageCalculator2 import get_avg_depth
+from CoverageCalculatorPy import get_avg_depth
 
 class TestCalcCov(unittest.TestCase):
 
@@ -21,15 +21,15 @@ class TestCalcCov(unittest.TestCase):
             os.remove('./test.coverage')
 
         filehandel = open("./test.coverage", 'a+')
-        depthfile = "180803_NB551319_0005_AH53YYAFXY_17M18299_DepthOfCoverage.gz"
-        get_avg_depth(filehandel, "1", 836814, 836900, "NONE", depthfile, 180)
+        depthfile = "test.gz"
+        get_avg_depth(filehandel, "1", 115252142, 115252148, "NONE", depthfile, 180)
         filehandel.close()
 
         with open("./test.coverage") as f:
             for line in f:
-                if line.startswith("1\t836814\t836900"):
+                if line.startswith("1\t115252142\t115252148"):
                     avg_depth = float(line.split("\t")[4])
-                    self.assertEqual(avg_depth, 174.0)
+                    self.assertEqual(avg_depth, 901.0)
 
 
     def test_perc_coverage(self):
@@ -38,15 +38,15 @@ class TestCalcCov(unittest.TestCase):
             os.remove('./test.coverage')
 
         filehandel = open("./test.coverage", 'a+')
-        depthfile = "180803_NB551319_0005_AH53YYAFXY_17M18299_DepthOfCoverage.gz"
-        get_avg_depth(filehandel, "1", 836814, 836900, "NONE", depthfile, 180)
+        depthfile = "test.gz"
+        get_avg_depth(filehandel, "1", 115252142, 115252148, "NONE", depthfile, 180)
         filehandel.close()
 
         with open("./test.coverage") as f:
             for line in f:
-                if line.startswith("1\t836814\t836900"):
+                if line.startswith("1\t115252142\t115252148"):
                     perc_coverage = float(line.split("\t")[5])
-                    self.assertEqual(perc_coverage, 82.6)
+                    self.assertEqual(perc_coverage, 16.7)
 
 
 if __name__ == '__main__':

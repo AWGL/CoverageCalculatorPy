@@ -327,23 +327,13 @@ def report_missing_regions(missingfile, chr, start, end, meta, depthfile):
     # get depthfile entry for interval
     records = get_bed_lines(depthfile, chr, start, end)
 
-    # file handel
-    missing_outfile = args.outdir + args.outname + ".missing"
-
-    # is exists, remove file
-    if os.path.exists(missing_outfile):
-        os.remove(missing_outfile)
-
-    # open gaps output file & write header
-    missingfile = open(missing_outfile, 'a+')
-
     # initialse variables used in loop
     coords_in_depthfile = []
 
     for record in records:
         coords_in_depthfile.append(int(record[1]))
 
-    coords_in_bed = list(range(start, end))
+    coords_in_bed = list(range(start+1, end+1))
     missing = sorted(list(set(coords_in_bed) - set(coords_in_depthfile)))
 
     i = 0

@@ -12,6 +12,7 @@ Updated: 11th November 2018
 import argparse
 import tabix
 import os
+import logging
 
 
 def get_args():
@@ -40,12 +41,26 @@ def main(args):
     main function iterates over intervals in given bedfile
     """
 
+    # setup logger
+    logger = logging.getLogger('CoverageCalculatorPy')
+    logger.setLevel(logging.DEBUG)
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        '%(levelname)s\t%(asctime)s\t%(name)s\t%(message)s'
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.info('running CoverageCalculatorPy.py...')
+
+
     # make output directory if it doesn't exist
     if not os.path.exists(args.outdir):
         os.makedirs(args.outdir)
 
     # file handel for coverage output file
     covr_outfile = args.outdir + args.outname + ".coverage"
+    logger.info('coverage information for each interval in given bedfile will be written to: ' + str(covr_outfile))
 
     # remove file if exists
     if os.path.exists(covr_outfile):
@@ -74,7 +89,8 @@ def main(args):
     mem_length = 0
 
     # setup groups / features variables if this file has been included --groupsfile
-    if args.groupfile != None:
+    if args.groupfile is not None:
+        logger.info('group file included: ' + str(args.groupfile))
         # initialise variables to store depth / coverage over feature
         feature = []
         feature_length = 0
@@ -89,13 +105,15 @@ def main(args):
         # check bedfile and groups are same length - throw error if different    
         num_ln_grp = len(feature) - 1  # minus one because grp file has a header
         num_ln_bed = sum(1 for line in open(args.bedfile))
+
         if num_ln_bed != num_ln_grp:
-            raise ValueError('bedfile and groupfile do not have the same number of entries')
+            logger.error('bedfile and groupfile do not have the same number of entries! Groupfile must have a header')
 
             
     # prepare output file for merged data - this always includes a data for all intervals in .bed
     # but can also include groups if the file is given as an argument
     mrg_outfile = args.outdir + args.outname + ".totalCoverage"
+    logger.info('coverage information across all intervals in bedfile will be written to: ' + str(mrg_outfile))
 
     # remove merged file if exists
     if os.path.exists(mrg_outfile):
@@ -116,6 +134,7 @@ def main(args):
     # prepare output file for gaps
     # file handel
     gaps_outfile = args.outdir + args.outname + ".gaps"
+    logger.info('gaps - intervals not covered at a minimum of ' + str(args.depth) + ' will be written to: ' + str(gaps_outfile))
 
     # remove file if exists
     if os.path.exists(gaps_outfile):
@@ -128,6 +147,7 @@ def main(args):
     #prepare missing file outfile
     # file handel
     missing_outfile = args.outdir + args.outname + ".missing"
+    logger.info('intervals which do not a corresponding depth in ' + args.depthfile + ' will be written to: ' + str(missing_outfile))
 
     # is exists, remove file
     if os.path.exists(missing_outfile):
@@ -165,7 +185,7 @@ def main(args):
             mem_length = mem_length + length
             
             # storing coverage info across features if --groupfile argument included 
-            if args.groupfile != None:
+            if args.groupfile is not None:
                 current_feature = feature[cnt_bed_ln]
 
                 if cnt_bed_ln == 1:
@@ -197,7 +217,7 @@ def main(args):
             cnt_bed_ln = cnt_bed_ln + 1
 
     # if --groups has been used, last interval in bed will always be the end of a feature - so print
-    if args.groupfile != None:
+    if args.groupfile is not None:
         mrgfile.write(
             str(feature[cnt_bed_ln - 1] + '_' + feature[0]) +
             "\t" +
@@ -313,7 +333,6 @@ def get_gaps(gapsfile, chr, start, end, meta, depthfile, depth_threshold):
                 gap_start = gap_start + 1
 
     # if interval ends on a gap, print
-    print(str(coord) + "\t" + str(gap_start) + "\n")
 
     if coord != gap_start - 1:
         gapsfile.write(str(chr) + "\t" + str(gap_start - 1) + "\t" + str(coord) + "\n")

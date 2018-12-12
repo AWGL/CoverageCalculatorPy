@@ -22,15 +22,15 @@ class TestCalcCov(unittest.TestCase):
     # instance where entire interval as a depth
     def test_avg_depth(self):
 
-        if os.path.exists('./test.coverage'):
-            os.remove('./test.coverage')
+        if os.path.exists('./tests/test.coverage'):
+            os.remove('./tests/test.coverage')
 
-        filehandel = open("./test.coverage", 'a+')
-        depthfile = "test.gz"
+        filehandel = open("./tests/test.coverage", 'a+')
+        depthfile = "./tests/test.gz"
         get_avg_depth(filehandel, "1", 115252142, 115252148, "NONE", depthfile, 180)
         filehandel.close()
 
-        with open("./test.coverage") as f:
+        with open("./tests/test.coverage") as f:
             for line in f:
                 avg_depth = float(line.split("\t")[4])
                 perc_coverage = float(line.split("\t")[5])
@@ -40,15 +40,15 @@ class TestCalcCov(unittest.TestCase):
     # instance where end of interval does not have depth
     def test_avg_depth_endofinterval(self):
 
-        if os.path.exists('./test.coverage'):
-            os.remove('./test.coverage')
+        if os.path.exists('./tests/test.coverage'):
+            os.remove('./tests/test.coverage')
 
-        filehandel = open("./test.coverage", 'a+')
-        depthfile = "test.gz"
+        filehandel = open("./tests/test.coverage", 'a+')
+        depthfile = "./tests/test.gz"
         get_avg_depth(filehandel, "1", 115258827, 115258834, "NONE", depthfile, 180)
         filehandel.close()
 
-        with open("./test.coverage") as f:
+        with open("./tests/test.coverage") as f:
             for line in f:
                 avg_depth = float(line.split("\t")[4])
                 perc_coverage = float(line.split("\t")[5])
@@ -58,15 +58,15 @@ class TestCalcCov(unittest.TestCase):
     # instance where start of interval does not have depth
     def test_avg_depth_startofinterval(self):
 
-        if os.path.exists('./test.coverage'):
-            os.remove('./test.coverage')
+        if os.path.exists('./tests/test.coverage'):
+            os.remove('./tests/test.coverage')
 
-        filehandel = open("./test.coverage", 'a+')
-        depthfile = "test.gz"
+        filehandel = open("./tests/test.coverage", 'a+')
+        depthfile = "./tests/test.gz"
         get_avg_depth(filehandel, "1", 160786640, 160786649, "NONE", depthfile, 180)
         filehandel.close()
 
-        with open("./test.coverage") as f:
+        with open("./tests/test.coverage") as f:
             for line in f:
                 avg_depth = float(line.split("\t")[4])
                 perc_coverage = float(line.split("\t")[5])
@@ -76,45 +76,45 @@ class TestCalcCov(unittest.TestCase):
     # test calculation of missing
     def test_missing_endofinterval(self):
 
-        if os.path.exists('./test.missing'):
-            os.remove('./test.missing')
+        if os.path.exists('./tests/test.missing'):
+            os.remove('./tests/test.missing')
 
-        filehandel = open("./test.missing", 'a+')
-        depthfile = "test.gz"
+        filehandel = open("./tests/test.missing", 'a+')
+        depthfile = "./tests/test.gz"
         report_missing_regions(filehandel, "1", 115258827, 115258834, "NONE", depthfile)
         filehandel.close()
 
-        with open("./test.missing") as f:
+        with open("./tests/test.missing") as f:
             for line in f:
                 self.assertEqual(line, "1\t115258830\t115258834\tNONE\n")
 
     # test calculation of gaps
     def test_gaps(self):
 
-        if os.path.exists('./test.gaps'):
-            os.remove('./test.gaps')
+        if os.path.exists('./tests/test.gaps'):
+            os.remove('./tests/test.gaps')
 
-        filehandel = open("./test.gaps", 'a+')
-        depthfile = "test.gz"
+        filehandel = open("./tests/test.gaps", 'a+')
+        depthfile = "./tests/test.gz"
         get_gaps(filehandel, "1", 115252142, 115252155, "NONE", depthfile, 180)
         filehandel.close()
 
-        with open("./test.gaps") as f:
+        with open("./tets/test.gaps") as f:
             for line in f:
                 self.assertEqual(line, "1\t115252142\t115252147\n")
 
     # test calculation of gaps
     def test_gaps(self):
 
-        if os.path.exists('./test.gaps'):
-            os.remove('./test.gaps')
+        if os.path.exists('./tests/test.gaps'):
+            os.remove('./tests/test.gaps')
 
-        filehandel = open("./test.gaps", 'a+')
-        depthfile = "test.gz"
+        filehandel = open("./tests/test.gaps", 'a+')
+        depthfile = "./tests/test.gz"
         get_gaps(filehandel, "1", 115252142, 115252155, "NONE", depthfile, 4910)
         filehandel.close()
 
-        with open("./test.gaps") as f:
+        with open("./tests/test.gaps") as f:
             cnt = 1
             for line in f:
                 if cnt == "1":

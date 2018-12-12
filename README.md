@@ -9,8 +9,8 @@ Given i) a tabix indexed per-base 'depth of coverage' file (similar to generated
  
 ### Input Arguments
 
--D/--depthfile  
-....path to tabix indexed depth-of-coverage file
+-D/--depthfile
+path to tabix indexed depth-of-coverage file
     
 -B/--bedfile
     path to bedfile. Chromosomes must not be prefixed with 'chr'
@@ -28,7 +28,7 @@ Given i) a tabix indexed per-base 'depth of coverage' file (similar to generated
     path to groupfile (see below)
 
 
-#### Tabix indexing a GATK3 DepthOfCoverage file
+### Tabix indexing a GATK3 DepthOfCoverage file
 
 The 'depth of coverage' file must be tabix indexed. The first three columns of the depthfile must be; chromosome, coordinate and depth. A file generated in GATK3 can be indexed as follows:
 

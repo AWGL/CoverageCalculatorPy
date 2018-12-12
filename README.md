@@ -9,23 +9,23 @@ Given i) a tabix indexed per-base 'depth of coverage' file (similar to generated
  
 ### Input Arguments
 
--D/--depthfile
+-D/--depthfile  
 path to tabix indexed depth-of-coverage file
     
--B/--bedfile
-    path to bedfile. Chromosomes must not be prefixed with 'chr'
+-B/--bedfile  
+path to bedfile. Chromosomes must not be prefixed with 'chr'
     
--d/--depth
-    depth threshold for precentage horizontal coverage calculation (default: 100)
+-d/--depth  
+  depth threshold for precentage horizontal coverage calculation (default: 100)
     
--o/--outname
-    output name to prefix on text reports (default: output)
+-o/--outname  
+output name to prefix on text reports (default: output)
     
--O/--outdir
-    directory to save output files to (default: current)
+-O/--outdir  
+directory to save output files to (default: current)
     
--g/--groupfile
-    path to groupfile (see below)
+-g/--groupfile  
+path to groupfile (see below)
 
 
 ### Tabix indexing a GATK3 DepthOfCoverage file

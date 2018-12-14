@@ -86,7 +86,7 @@ class TestCalcCov(unittest.TestCase):
 
         with open("./tests/test.missing") as f:
             for line in f:
-                self.assertEqual(line, "1\t115258830\t115258834\tNONE\n")
+                self.assertEqual(line, "1\t115258829\t115258834\tNONE\n")
 
     # test calculation of gaps
     def test_gaps(self):

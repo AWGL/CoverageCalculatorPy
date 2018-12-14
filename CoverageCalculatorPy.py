@@ -171,7 +171,7 @@ def main(args):
             end = int(bedlist[2])
 
             # does bedfile contain 4th column of metadata
-            if len(bedlist) > 2:
+            if len(bedlist) > 3:
                 meta = str(bedlist[3])
             else:
                 meta = ""
@@ -332,9 +332,11 @@ def get_gaps(gapsfile, chr, start, end, meta, depthfile, depth_threshold):
                 # this is not the end of a gap
                 gap_start = gap_start + 1
 
-    # if interval ends on a gap, print
-
-    if coord != gap_start - 1:
+    # if entire interval is missing
+    if coord == 0:
+        print("")
+    # if interval ended on a gap, print final row
+    elif coord != gap_start - 1:
         gapsfile.write(str(chr) + "\t" + str(gap_start - 1) + "\t" + str(coord) + "\n")
 
 
@@ -361,10 +363,10 @@ def report_missing_regions(missingfile, chr, start, end, meta, depthfile):
             start = missing[i]
         else:
             if missing[i] - 1 != missing[i - 1]:
-                missingfile.write(str(chr) + "\t" + str(start) + "\t" + str(missing[i]) + "\t" + str(meta) + "\n")
+                missingfile.write(str(chr) + "\t" + str(start - 1) + "\t" + str(missing[i]) + "\t" + str(meta) + "\n")
                 start = missing[i] + 1
             elif i + 1 == len(missing):
-                missingfile.write(str(chr) + "\t" + str(start) + "\t" + str(missing[i]) + "\t" + str(meta) + "\n")
+                missingfile.write(str(chr) + "\t" + str(start - 1) + "\t" + str(missing[i]) + "\t" + str(meta) + "\n")
 
         i = i + 1
 

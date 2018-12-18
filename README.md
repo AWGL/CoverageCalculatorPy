@@ -35,6 +35,9 @@ The 'depth of coverage' file must be tabix indexed. The first three columns of t
 ```
 sed 's/:/\t/g' <GATK depthOfCoverage file> | grep -v 'Locus' | sort -k1,1 -k2,2n | bgzip > <filename.gz>
 
+(on macOS)
+sed "s/:/$(printf '\t')/g" <GATK depthOfCoverage file>  |  grep -v 'Locus' | sort -k1,1 -k2,2n | bgzip > <filename.gz>
+
 tabix -b 2 -e 2 -s 1 <filename.gz> 
 ```
 ### Adding a groupfile

@@ -193,7 +193,7 @@ def main(args):
 
                 if current_feature != last_feature:
                     mrgfile.write(
-                        str(feature[cnt_bed_ln - 1] + '_' + feature[0]) +
+                        str(args.outname + '_' + feature[cnt_bed_ln - 1] + '_' + feature[0]) +
                         "\t" +
                         str(round(feature_depth / feature_length, 0)) +
                         "\t" +
@@ -219,7 +219,7 @@ def main(args):
     # if --groups has been used, last interval in bed will always be the end of a feature - so print
     if args.groupfile is not None:
         mrgfile.write(
-            str(feature[cnt_bed_ln - 1] + '_' + feature[0]) +
+            str(args.outname + '_' + feature[cnt_bed_ln - 1] + '_' + feature[0]) +
             "\t" +
             str(round(feature_depth / feature_length, 0)) +
             "\t" +

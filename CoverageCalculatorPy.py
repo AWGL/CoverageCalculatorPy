@@ -43,9 +43,9 @@ def main(args):
 
     # setup logger
     logger = logging.getLogger('CoverageCalculatorPy')
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.WARNING)
     handler = logging.StreamHandler()
-    handler.setLevel(logging.DEBUG)
+    handler.setLevel(logging.WARNING)
     formatter = logging.Formatter(
         '%(levelname)s\t%(asctime)s\t%(name)s\t%(message)s'
     )

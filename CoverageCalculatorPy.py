@@ -43,9 +43,9 @@ def main(args):
 
     # setup logger
     logger = logging.getLogger('CoverageCalculatorPy')
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.WARNING)
     handler = logging.StreamHandler()
-    handler.setLevel(logging.DEBUG)
+    handler.setLevel(logging.WARNING)
     formatter = logging.Formatter(
         '%(levelname)s\t%(asctime)s\t%(name)s\t%(message)s'
     )
@@ -169,8 +169,8 @@ def main(args):
             chr = bedlist[0]
             start = int(bedlist[1])
             end = int(bedlist[2])
-
-            # does bedfile contain 4th column of metadata
+            
+           # does bedfile contain 4th column of metadata
             if len(bedlist) > 3:
                 meta = str(bedlist[3])
             else:
@@ -193,7 +193,7 @@ def main(args):
 
                 if current_feature != last_feature:
                     mrgfile.write(
-                        str(feature[cnt_bed_ln - 1] + '_' + feature[0]) +
+                        str(args.outname + '_' + feature[cnt_bed_ln - 1] + '_' + feature[0]) +
                         "\t" +
                         str(round(feature_depth / feature_length, 0)) +
                         "\t" +
@@ -219,7 +219,7 @@ def main(args):
     # if --groups has been used, last interval in bed will always be the end of a feature - so print
     if args.groupfile is not None:
         mrgfile.write(
-            str(feature[cnt_bed_ln - 1] + '_' + feature[0]) +
+            str(args.outname + '_' + feature[cnt_bed_ln - 1] + '_' + feature[0]) +
             "\t" +
             str(round(feature_depth / feature_length, 0)) +
             "\t" +
@@ -326,7 +326,7 @@ def get_gaps(gapsfile, chr, start, end, meta, depthfile, depth_threshold):
         if depth >= depth_threshold:
             if coord != gap_start:
                 # this is the end of a gap and should be printed
-                gapsfile.write(str(chr) + "\t" + str(gap_start - 1) + "\t" + str(coord - 1) + "\n")
+                gapsfile.write(str(chr) + "\t" + str(gap_start - 1) + "\t" + str(coord - 1)+ "\t" + str(meta)+ "\n")
                 gap_start = coord + 1
             else:
                 # this is not the end of a gap
@@ -337,7 +337,7 @@ def get_gaps(gapsfile, chr, start, end, meta, depthfile, depth_threshold):
         print("")
     # if interval ended on a gap, print final row
     elif coord != gap_start - 1:
-        gapsfile.write(str(chr) + "\t" + str(gap_start - 1) + "\t" + str(coord) + "\n")
+        gapsfile.write(str(chr) + "\t" + str(gap_start - 1) + "\t" + str(coord)+ "\t" + str(meta) + "\n")
 
 
 def report_missing_regions(missingfile, chr, start, end, meta, depthfile):

@@ -169,12 +169,16 @@ def main(args):
             chr = bedlist[0]
             start = int(bedlist[1])
             end = int(bedlist[2])
+     
+        # check start coordinate is before end
+        if start > end:
+            logger.error("start coordinate is after end coordinate")
             
-           # does bedfile contain 4th column of metadata
-            if len(bedlist) > 3:
-                meta = str(bedlist[3])
-            else:
-                meta = ""
+        # does bedfile contain 4th column of metadata
+        if len(bedlist) > 3:
+            meta = str(bedlist[3])
+        else:
+            meta = ""
             
             # function prints coverage for given interval, but also returns stats for aggregation across intervals 
             depth, meets_depth, length = get_avg_depth(covfile, chr, start, end, meta, args.depthfile, int(args.depth))

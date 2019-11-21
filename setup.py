@@ -7,7 +7,7 @@ setuptools.setup(
     name='CoverageCalculatorPy',
     version='1.0.0',
     author='Chris Medway',
-    scripts= ['CoverageCalculatorPy'],
+    scripts= ['CoverageCalculatorPy.py'],
     author_email='josephhalstead89@gmail.com',
     description='Calculated coverage metrics from a GATK3 Depth Of Coverage file and a bedfile  ',
     long_description=long_description,

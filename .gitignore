@@ -4,4 +4,4 @@ dist/
 tests/test.coverage
 tests/test.gaps
 tests/test.missing
-
+__pycache__/

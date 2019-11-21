@@ -1,0 +1,7 @@
+CoverageCalculatorPy.egg-info/
+build/
+dist/
+tests/test.coverage
+tests/test.gaps
+tests/test.missing
+

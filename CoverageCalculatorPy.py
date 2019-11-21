@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 CoverageCalculatorPy.py
 
@@ -157,6 +159,9 @@ def main(args):
     missingfile = open(missing_outfile, 'a+')
 
 
+    tb = tabix.open(args.depthfile)
+
+
     # iterate over each line of the bed file 
     with open(args.bedfile) as bed:
 
@@ -170,19 +175,20 @@ def main(args):
             start = int(bedlist[1])
             end = int(bedlist[2])
      
-        # check start coordinate is before end
-        if start > end:
-            logger.error("start coordinate is after end coordinate")
+            # check start coordinate is before end
+            if start > end:
+                logger.error("start coordinate is after end coordinate")
+                
+            # does bedfile contain 4th column of metadata
+            if len(bedlist) > 3:
+                meta = str(bedlist[3])
+            else:
+                meta = ""
             
-        # does bedfile contain 4th column of metadata
-        if len(bedlist) > 3:
-            meta = str(bedlist[3])
-        else:
-            meta = ""
-            
+
             # function prints coverage for given interval, but also returns stats for aggregation across intervals 
-            depth, meets_depth, length = get_avg_depth(covfile, chr, start, end, meta, args.depthfile, int(args.depth))
-            
+            depth, meets_depth, length = get_avg_depth(covfile, chr, start, end, meta, tb, int(args.depth))
+
             # storing coverage info across all intervals in given bedfile
             mem_depth = mem_depth + depth
             mem_meets_depth = mem_meets_depth + meets_depth
@@ -213,10 +219,10 @@ def main(args):
                 last_feature = current_feature
             
             # reports gaps for given feature and appends to gaps file
-            get_gaps(gapsfile, chr, start, end, meta, args.depthfile, int(args.depth))
+            get_gaps(gapsfile, chr, start, end, meta, tb, int(args.depth))
             
             # reports coordinates which are unavilable (i.e in bed but not in depthfile) and appends to file
-            report_missing_regions(missingfile, chr, start, end, meta, args.depthfile)
+            report_missing_regions(missingfile, chr, start, end, meta, tb)
 
             cnt_bed_ln = cnt_bed_ln + 1
 
@@ -243,7 +249,7 @@ def main(args):
 
     
 
-def get_bed_lines(depthfile, chr, start, end):
+def get_bed_lines(tb, chr, start, end):
     """
     given a genomic interval, extract entries from tabix indexed depth of coverage file
     depth of coverage file is generated using GATK3
@@ -254,12 +260,12 @@ def get_bed_lines(depthfile, chr, start, end):
     :param end: end coordinate 0-based
     :return: records: object containing bed intervals
     """
-    tb = tabix.open(depthfile)
+    
     records = tb.query(chr, start, end)
     return records
 
 
-def get_avg_depth(covfile, chr, start, end, meta, depthfile, depth_threshold):
+def get_avg_depth(covfile, chr, start, end, meta, tb, depth_threshold):
     """
     function to iterate over interval and calculate average coverage & percent of bases meeting given
     depth threshold
@@ -273,7 +279,7 @@ def get_avg_depth(covfile, chr, start, end, meta, depthfile, depth_threshold):
     """
 
     # get depthfile entry for interval
-    records = get_bed_lines(depthfile, chr, start, end)
+    records = get_bed_lines(tb, chr, start, end)
 
     # intialise variables used in forloop
     tot_depth = 0 
@@ -305,13 +311,13 @@ def get_avg_depth(covfile, chr, start, end, meta, depthfile, depth_threshold):
     return tot_depth, meets_depth, length
 
 
-def get_gaps(gapsfile, chr, start, end, meta, depthfile, depth_threshold):
+def get_gaps(gapsfile, chr, start, end, meta, tb, depth_threshold):
     """
     identifies and prints coordinates, within the given bed interval, that fall below the given
     depth threshold
     """
     # get depthfile entry for interval
-    records = get_bed_lines(depthfile, chr, start, end)
+    records = get_bed_lines(tb, chr, start, end)
 
     # initialise variables used in loop
     first_entry = 1
@@ -344,13 +350,13 @@ def get_gaps(gapsfile, chr, start, end, meta, depthfile, depth_threshold):
         gapsfile.write(str(chr) + "\t" + str(gap_start - 1) + "\t" + str(coord)+ "\t" + str(meta) + "\n")
 
 
-def report_missing_regions(missingfile, chr, start, end, meta, depthfile):
+def report_missing_regions(missingfile, chr, start, end, meta, tb):
     """
     identifies and reports coordinates which are given in the bedfile, but are not included
     in the depth of coverage file
     """
     # get depthfile entry for interval
-    records = get_bed_lines(depthfile, chr, start, end)
+    records = get_bed_lines(tb, chr, start, end)
 
     # initialse variables used in loop
     coords_in_depthfile = []

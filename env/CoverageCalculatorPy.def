@@ -1,0 +1,15 @@
+Bootstrap: docker
+From: python:3.11
+
+%files
+    ../CoverageCalculatorPy.py /usr/bin/CoverageCalculatorPy.py
+
+%post
+    # Make script executable
+    chmod +x /usr/bin/CoverageCalculatorPy.py
+    
+    # Install pytabix
+    pip install pytabix==0.1
+
+%runscript
+    exec "$@"

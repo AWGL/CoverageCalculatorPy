@@ -1,0 +1,61 @@
+name: Build Image using Containerfile
+on: 
+  push:
+    branches:
+      - 'development'
+    tags:
+
+  pull_request:
+    types: 
+      - opened
+      - synchronize
+    branches:
+      - 'development'
+
+permissions:
+  packages: write
+  contents: read
+
+jobs:
+  build:
+    name: Build image
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Determine tags
+      shell: bash
+      env:
+        REF_TYPE: ${{ github.ref_type }}
+        SHA: ${{ github.sha }}
+        EVENT_NAME: ${{ github.event_name }}
+      run: |
+        if [[ "${EVENT_NAME}" == "pull_request" ]]; then
+          echo "BASE_TAGS=${SHA}" | tee -a "${GITHUB_ENV}"
+        elif [[ "${REF_TYPE}" == "tag" ]]; then 
+          echo "BASE_TAGS=latest ${GITHUB_REF#refs/*/} ${SHA}" | tee -a "${GITHUB_ENV}"
+        elif [[ "${REF_TYPE}" == "branch" ]]; then
+          echo "BASE_TAGS=${GITHUB_REF#refs/*/} ${SHA}" | tee -a "${GITHUB_ENV}"
+        else
+          echo "BASE_TAGS=${SHA}" | tee -a "${GITHUB_ENV}"
+        fi
+
+    - name: Buildah Action
+      id: build_image
+      uses: redhat-actions/buildah-build@v2
+      with:
+        image: CoverageCalculatorPy
+        tags: ${{ env.BASE_TAGS }}
+        containerfiles: |
+          ./Containerfile
+
+    - name: Push to GHCR
+      uses: redhat-actions/push-to-registry@v2
+      if: github.event_name != 'pull_request'
+      with:
+        image: ${{ steps.build_image.outputs.image }}
+        tags: ${{ steps.build_image.outputs.tags }}
+        registry: ghcr.io/awgl
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}

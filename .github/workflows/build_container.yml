@@ -2,6 +2,7 @@ name: Build Image using Containerfile
 on: 
   push:
     branches:
+      - 'main'
       - 'development'
     tags:
 
@@ -10,6 +11,7 @@ on:
       - opened
       - synchronize
     branches:
+      - 'main'
       - 'development'
 
 permissions:
